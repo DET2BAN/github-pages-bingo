@@ -929,6 +929,8 @@ let G = {
 let S = {playerId:null, role:null};
 
 let bc = null;  // BroadcastChannel
+const BUS_KEY = 'bshBingo_v2_bus';
+const seenBusIds = new Set();
 
 /* ──────────────────────────────────────
    PERSISTENCE
@@ -968,15 +970,25 @@ function loadS(){
 function initBC(){
   try{
     bc = new BroadcastChannel(CH_NAME);
-    bc.onmessage = ({data}) => {
-      loadG();
-      onMsg(data.type, data.payload||{});
-    };
+    bc.onmessage = ({data}) => handleBusMessage(data);
   }catch(e){ console.warn("BroadcastChannel unavailable:", e.message); }
+  window.addEventListener('storage', (event)=>{
+    if(event.key === BUS_KEY && event.newValue){
+      try{ handleBusMessage(JSON.parse(event.newValue)); }catch(e){}
+    }
+  });
 }
 function send(type, payload={}){
+  const msg = {id: uid('M'), type, payload, time: Date.now()};
   saveG();
-  if(bc) bc.postMessage({type, payload});
+  if(bc) bc.postMessage(msg);
+  try{ localStorage.setItem(BUS_KEY, JSON.stringify(msg)); }catch(e){}
+}
+function handleBusMessage(msg){
+  if(!msg || !msg.id || seenBusIds.has(msg.id)) return;
+  seenBusIds.add(msg.id);
+  loadG();
+  onMsg(msg.type, msg.payload||{});
 }
 function onMsg(type, payload){
   if(type==='WORD_CALLED' && S.role==='player'){
