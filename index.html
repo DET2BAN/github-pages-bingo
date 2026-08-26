@@ -1482,6 +1482,7 @@ function closeWin(){
 function initDash(){
   renderWordPool();
   refreshDash();
+  monitorClaims();
   // Auto-refresh every 3 s
   clearInterval(window._dInt);
   window._dInt = setInterval(()=>{
@@ -1489,6 +1490,27 @@ function initDash(){
       loadG(); refreshDash();
     }
   }, 3000);
+}
+
+function monitorClaims(){
+  clearInterval(window._claimInt);
+  const seen = new Set((G.claims || []).map(c=>c.id));
+  window._claimInt = setInterval(()=>{
+    const dash = document.getElementById('s-dash');
+    if(!dash || !dash.classList.contains('show')) return;
+
+    loadG();
+    const freshClaims = (G.claims || []).filter(c=>!seen.has(c.id));
+    if(!freshClaims.length) return;
+
+    freshClaims.forEach(c=>{
+      seen.add(c.id);
+      if(c.status === 'pending'){
+        refreshDash();
+        announce(`🚨 Claim: ${c.playerName} · ${PATTERNS[c.pattern]?.name || c.pattern}`);
+      }
+    });
+  }, 1000);
 }
 
 function refreshDash(){
