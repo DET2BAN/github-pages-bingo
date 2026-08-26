@@ -687,6 +687,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);
     <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
       <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.2)" onclick="goToMainPage()">← Main Page</button>
       <span class="badge badge-green">● Live</span>
+      <span class="badge badge-glass" id="latest-claim-badge">No claims yet</span>
       <button class="btn btn-sm btn-red" onclick="doReset()">🔄 Reset Game</button>
       <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white"
               onclick="loadG();refreshDash()">↻ Refresh</button>
@@ -931,12 +932,20 @@ let S = {playerId:null, role:null};
 let bc = null;  // BroadcastChannel
 const BUS_KEY = 'bshBingo_v2_bus';
 const seenBusIds = new Set();
+const STATE_DB_NAME = 'bshBingoStateDB';
+const STATE_STORE_NAME = 'state';
+const STATE_DB_VERSION = 1;
+let sharedSyncStarted = false;
+let sharedSnapshot = '';
 
 /* ──────────────────────────────────────
    PERSISTENCE
 ────────────────────────────────────── */
 function saveG(){
-  try{ localStorage.setItem(G_KEY, JSON.stringify(G)) }catch(e){}
+  const raw = JSON.stringify(G);
+  sharedSnapshot = raw;
+  try{ localStorage.setItem(G_KEY, raw) }catch(e){}
+  void persistSharedState(raw);
 }
 function loadG(){
   try{
@@ -964,6 +973,82 @@ function loadS(){
   }catch(e){}
 }
 
+function cloneStateDefaults(state){
+  const base = state && typeof state === 'object' ? state : {};
+  return {
+    calledWords: base.calledWords || [],
+    players: base.players || {},
+    tickets: base.tickets || {},
+    winners: {
+      row1: base.winners?.row1 || [],
+      row2: base.winners?.row2 || [],
+      row3: base.winners?.row3 || [],
+      fourCorners: base.winners?.fourCorners || [],
+      fullHouse: base.winners?.fullHouse || []
+    },
+    claims: base.claims || []
+  };
+}
+
+async function openStateDb(){
+  if(!('indexedDB' in window)) return null;
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open(STATE_DB_NAME, STATE_DB_VERSION);
+    req.onupgradeneeded = ()=>{
+      const db = req.result;
+      if(!db.objectStoreNames.contains(STATE_STORE_NAME)){
+        db.createObjectStore(STATE_STORE_NAME);
+      }
+    };
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error || new Error('IndexedDB open failed'));
+  });
+}
+
+async function persistSharedState(raw){
+  try{
+    const db = await openStateDb();
+    if(!db) return;
+    await new Promise((resolve, reject)=>{
+      const tx = db.transaction(STATE_STORE_NAME, 'readwrite');
+      tx.objectStore(STATE_STORE_NAME).put(raw, G_KEY);
+      tx.oncomplete = ()=>resolve();
+      tx.onerror = ()=>reject(tx.error || new Error('IndexedDB write failed'));
+    });
+  }catch(e){}
+}
+
+async function readSharedStateRaw(){
+  try{
+    const raw = localStorage.getItem(G_KEY);
+    if(raw) return raw;
+  }catch(e){}
+  try{
+    const db = await openStateDb();
+    if(!db) return null;
+    return await new Promise((resolve, reject)=>{
+      const tx = db.transaction(STATE_STORE_NAME, 'readonly');
+      const req = tx.objectStore(STATE_STORE_NAME).get(G_KEY);
+      req.onsuccess = ()=>resolve(req.result || null);
+      req.onerror = ()=>reject(req.error || new Error('IndexedDB read failed'));
+    });
+  }catch(e){
+    return null;
+  }
+}
+
+async function hydrateSharedState(){
+  const raw = await readSharedStateRaw();
+  if(!raw || raw === sharedSnapshot) return false;
+  try{
+    G = cloneStateDefaults(JSON.parse(raw));
+    sharedSnapshot = raw;
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
 /* ──────────────────────────────────────
    BROADCAST (cross-tab sync)
 ────────────────────────────────────── */
@@ -989,6 +1074,25 @@ function handleBusMessage(msg){
   seenBusIds.add(msg.id);
   loadG();
   onMsg(msg.type, msg.payload||{});
+}
+
+function startSharedStateSync(){
+  if(sharedSyncStarted) return;
+  sharedSyncStarted = true;
+  clearInterval(window._sharedSyncInt);
+  window._sharedSyncInt = setInterval(async ()=>{
+    const changed = await hydrateSharedState();
+    if(!changed) return;
+
+    if(document.getElementById('s-dash')?.classList.contains('show')){
+      refreshDash();
+    }
+    if(document.getElementById('s-game')?.classList.contains('show')){
+      updateGameHeader();
+      renderAllCards();
+      updateWinsBar();
+    }
+  }, 900);
 }
 function onMsg(type, payload){
   if(type==='WORD_CALLED' && S.role==='player'){
@@ -1555,6 +1659,15 @@ function renderClaims(){
   const pendingCount = claims.filter(c=>c.status==='pending').length;
   const badge = document.getElementById('claims-total-badge');
   if(badge) badge.textContent = `${pendingCount} pending`;
+  const latestBadge = document.getElementById('latest-claim-badge');
+  if(latestBadge){
+    if(!claims.length){
+      latestBadge.textContent = 'No claims yet';
+    } else {
+      const latest = claims[0];
+      latestBadge.textContent = `${PATTERNS[latest.pattern]?.icon || '🚨'} ${latest.playerName}: ${PATTERNS[latest.pattern]?.name || latest.pattern}`;
+    }
+  }
 
   const board = document.getElementById('claims-board');
   if(!board) return;
@@ -1901,10 +2014,12 @@ function esc(s='', attr=false){
 /* ──────────────────────────────────────
    BOOT
 ────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded', async ()=>{
+  await hydrateSharedState();
   loadG();
   loadS();
   initBC();
+  startSharedStateSync();
 
   // Restore session
   if(S.role==='organizer'){
