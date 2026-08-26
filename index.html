@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎯 BSH Sherpa Buzzword BINGO</title>
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --blue:      #003366;
+  --blue-dk:   #001a33;
+  --blue-lt:   #e8edf5;
+  --red:       #e30613;
+  --gold:      #ffd700;
+  --gold-dk:   #cc9900;
+  --green:     #28a745;
+  --gray:      #6c757d;
+  --bg:        #f0f2f5;
+  --white:     #ffffff;
+  --sh:        0 4px 24px rgba(0,51,102,.15);
+  --sh-lg:     0 8px 40px rgba(0,51,102,.22);
+  --r:         12px;
+  --r-sm:      8px;
+  --ease:      all .25s ease;
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);
+     color:#1a1a2e;min-height:100vh}
+
+/* ═══════════════════════════════════════════════
+   SCREEN SYSTEM
+═══════════════════════════════════════════════ */
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.show{display:flex}
+
+/* ═══════════════════════════════════════════════
+   ROLE SELECT
+═══════════════════════════════════════════════ */
+#s-role{
+  background:linear-gradient(155deg,var(--blue-dk) 0%,var(--blue) 55%,#00509e 100%);
+  align-items:center;justify-content:center;
+  text-align:center;padding:2rem;position:relative;overflow:hidden;
+}
+#s-role::before{
+  content:'';position:absolute;
+  width:700px;height:700px;
+  background:radial-gradient(circle,rgba(255,215,0,.07) 0%,transparent 70%);
+  top:-250px;right:-250px;pointer-events:none;
+}
+.logo-wrap{margin-bottom:3rem;position:relative;z-index:1}
+.logo-bingo{
+  font-size:clamp(2.8rem,9vw,5rem);font-weight:900;
+  letter-spacing:.5rem;line-height:1;
+  background:linear-gradient(135deg,var(--gold) 0%,#ff8c00 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;display:block;
+}
+.logo-sub{color:rgba(255,255,255,.75);font-size:1rem;
+          margin-top:.5rem;letter-spacing:.08rem}
+.logo-cap{color:rgba(255,255,255,.45);font-size:.78rem;margin-top:.25rem}
+
+.role-row{display:flex;gap:1.5rem;flex-wrap:wrap;
+          justify-content:center;position:relative;z-index:1}
+.role-btn{
+  -webkit-appearance:none;appearance:none;
+  background:rgba(255,255,255,.1);
+  border:2px solid rgba(255,255,255,.2);
+  border-radius:var(--r);padding:2rem 2.5rem;
+  cursor:pointer;transition:var(--ease);
+  color:white;min-width:210px;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.role-btn:hover{
+  background:rgba(255,255,255,.18);border-color:var(--gold);
+  transform:translateY(-5px);box-shadow:0 14px 40px rgba(0,0,0,.28);
+}
+.role-btn .ri{font-size:2.5rem;display:block;margin-bottom:.75rem}
+.role-btn h3{font-size:1.2rem;margin-bottom:.3rem}
+.role-btn p{color:rgba(255,255,255,.6);font-size:.85rem}
+.role-hint{
+  color:rgba(255,255,255,.35);font-size:.72rem;
+  margin-top:2.5rem;position:relative;z-index:1;
+}
+
+/* ═══════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════ */
+#s-auth{
+  background:linear-gradient(155deg,var(--blue-dk),var(--blue));
+  align-items:center;justify-content:center;padding:2rem;
+}
+.auth-box{
+  background:white;border-radius:var(--r);
+  padding:2.5rem;width:100%;max-width:420px;
+  box-shadow:var(--sh-lg);
+}
+.auth-box h2{color:var(--blue);font-size:1.45rem;margin-bottom:.25rem}
+.auth-box .desc{color:var(--gray);font-size:.875rem;margin-bottom:1.5rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.8rem;font-weight:600;
+             margin-bottom:.35rem;color:#333}
+.field input{
+  width:100%;padding:.7rem 1rem;
+  border:2px solid #e0e0e0;border-radius:var(--r-sm);
+  font-size:.95rem;outline:none;transition:var(--ease);
+}
+.field input:focus{border-color:var(--blue);
+                   box-shadow:0 0 0 3px rgba(0,51,102,.1)}
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:.5rem;padding:.7rem 1.4rem;border:none;
+  border-radius:var(--r-sm);font-size:.95rem;font-weight:600;
+  cursor:pointer;transition:var(--ease);white-space:nowrap;
+}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--blue);color:white;width:100%}
+.btn-primary:hover:not(:disabled){
+  background:#00449e;transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(0,51,102,.3);
+}
+.btn-ghost{background:transparent;color:var(--blue);
+           border:2px solid #dde4f0;width:100%}
+.btn-ghost:hover{background:var(--blue-lt)}
+.btn-red{background:var(--red);color:white}
+.btn-red:hover{background:#b5000e}
+.btn-gold{background:var(--gold);color:var(--blue-dk);font-weight:700}
+.btn-sm{padding:.35rem .75rem;font-size:.78rem}
+.btn-lg{padding:1rem 2rem;font-size:1.05rem}
+.mt{margin-top:1rem}.mt-sm{margin-top:.5rem}
+.w-full{width:100%}
+
+/* ═══════════════════════════════════════════════
+   PAGE HEADER (shared)
+═══════════════════════════════════════════════ */
+.ph{
+  background:linear-gradient(135deg,var(--blue),var(--blue-dk));
+  color:white;padding:.85rem 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:.5rem;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+  position:sticky;top:0;z-index:50;
+}
+.ph h1{font-size:1.15rem;display:flex;align-items:center;gap:.5rem}
+.badge{padding:.22rem .65rem;border-radius:20px;
+       font-size:.72rem;font-weight:700}
+.badge-blue{background:var(--blue);color:white}
+.badge-gold{background:var(--gold);color:var(--blue-dk)}
+.badge-green{background:var(--green);color:white}
+.badge-gray{background:#e0e0e0;color:#555}
+.badge-red{background:var(--red);color:white}
+.badge-glass{background:rgba(255,255,255,.2);color:white}
+
+/* ═══════════════════════════════════════════════
+   CARD (panel)
+═══════════════════════════════════════════════ */
+.card{
+  background:white;border-radius:var(--r);
+  box-shadow:0 2px 12px rgba(0,51,102,.1);
+  overflow:hidden;margin-bottom:1.25rem;
+}
+.card-head{
+  background:var(--blue);color:white;
+  padding:.75rem 1.2rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-head h3{font-size:.93rem}
+.card-body{padding:1.2rem}
+
+/* ═══════════════════════════════════════════════
+   TICKET SELECTION SCREEN
+═══════════════════════════════════════════════ */
+#s-tickets{background:var(--bg)}
+.ts-wrap{padding:1.5rem;max-width:860px;margin:0 auto;width:100%}
+
+.count-row{display:flex;gap:.75rem;flex-wrap:wrap;margin:.75rem 0}
+.count-opt{
+  padding:.6rem 1.4rem;border:2px solid var(--blue);
+  border-radius:var(--r-sm);background:white;
+  color:var(--blue);font-weight:600;cursor:pointer;
+  transition:var(--ease);font-size:.93rem;
+}
+.count-opt.active{background:var(--blue);color:white}
+.count-opt:hover:not(.active){background:var(--blue-lt)}
+
+.how-to-win{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+  gap:.75rem;
+}
+.wr{background:var(--blue-lt);border-radius:var(--r-sm);padding:.75rem}
+.wr .wi{font-size:1.25rem}
+.wr .wn{font-weight:700;color:var(--blue);display:block;
+         margin:.25rem 0 .1rem}
+.wr .wd{color:var(--gray);font-size:.75rem}
+
+.info-box{
+  background:#e8f4fd;
+  border-left:4px solid var(--blue);
+  border-radius:0 var(--r-sm) var(--r-sm) 0;
+  padding:.6rem .9rem;font-size:.84rem;color:var(--blue);
+}
+
+/* ═══════════════════════════════════════════════
+   PLAYER GAME SCREEN
+═══════════════════════════════════════════════ */
+#s-game{background:var(--bg)}
+
+.call-ticker{
+  background:var(--red);color:white;
+  padding:.45rem 1.5rem;text-align:center;
+  font-weight:700;font-size:.9rem;display:none;
+}
+
+.hint-bar{
+  background:var(--blue-lt);padding:.4rem 1.5rem;
+  font-size:.78rem;color:var(--blue);text-align:center;
+}
+
+.wins-bar{
+  background:linear-gradient(135deg,var(--gold),#ff8c00);
+  padding:.55rem 1.5rem;
+  display:none;align-items:center;gap:.75rem;flex-wrap:wrap;
+}
+.wins-bar.show{display:flex}
+.wins-bar strong{color:var(--blue-dk);font-size:.88rem}
+.win-pill{
+  background:white;color:var(--blue-dk);
+  padding:.18rem .6rem;border-radius:20px;
+  font-size:.74rem;font-weight:700;
+}
+
+.tickets-area{
+  padding:1.5rem;
+  display:flex;gap:1.5rem;flex-wrap:wrap;
+  justify-content:center;align-items:flex-start;
+}
+
+/* ═══════════════════════════════════════════════
+   BINGO CARD
+═══════════════════════════════════════════════ */
+.bingo-card{
+  background:white;border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--sh);
+  width:310px;flex-shrink:0;transition:var(--ease);
+}
+.bingo-card.is-winner{
+  box-shadow:0 0 0 3px var(--gold),var(--sh-lg);
+  animation:winner-glow 2s ease-in-out infinite;
+}
+@keyframes winner-glow{
+  0%,100%{box-shadow:0 0 0 3px var(--gold),var(--sh-lg)}
+  50%{box-shadow:0 0 0 6px var(--gold),0 0 30px rgba(255,215,0,.4)}
+}
+
+.bc-top{
+  background:var(--blue);padding:.5rem .75rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.bc-id{color:rgba(255,255,255,.55);font-size:.68rem;font-family:monospace}
+.bc-num{color:var(--gold);font-weight:700;font-size:.82rem}
+
+.bc-letters{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  background:var(--blue-dk);
+}
+.bc-letters span{
+  text-align:center;padding:.45rem;
+  font-size:1.15rem;font-weight:900;line-height:1;
+}
+.bc-letters span:nth-child(1){color:#ff6b6b}
+.bc-letters span:nth-child(2){color:#4ecdc4}
+.bc-letters span:nth-child(3){color:#ffe66d}
+.bc-letters span:nth-child(4){color:#a8e6cf}
+.bc-letters span:nth-child(5){color:#ffd3b6}
+
+.bc-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:2px;background:#c8d4e8;padding:2px;
+}
+
+.bc-cell{
+  background:white;min-height:52px;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;font-size:.58rem;padding:3px 2px;
+  cursor:pointer;overflow:hidden;
+  transition:background .18s,color .18s,transform .1s;
+  word-break:break-word;font-weight:500;line-height:1.2;
+  user-select:none;position:relative;
+}
+.bc-cell:hover:not(.is-free):not(.is-scratched):not(.is-win-hl){
+  background:#eef3ff;transform:scale(1.04);
+}
+.bc-cell.is-free{
+  background:var(--gold);color:var(--blue-dk);
+  font-weight:800;font-size:.65rem;cursor:default;
+}
+.bc-cell.is-called:not(.is-scratched){
+  background:#dbeafe;outline:1.5px solid #93c5fd;
+}
+/* Scratched: hide text, show checkmark */
+.bc-cell.is-scratched:not(.is-free){
+  background:var(--blue) !important;color:transparent !important;
+  cursor:default;outline:none !important;font-size:0 !important;
+}
+.bc-cell.is-scratched:not(.is-free)::after{
+  content:'✓';font-size:1.1rem;font-weight:900;
+  color:white;position:absolute;
+}
+/* Win highlight overrides scratched colour */
+.bc-cell.is-win-hl:not(.is-free){
+  background:var(--gold) !important;
+  color:transparent !important;
+}
+.bc-cell.is-win-hl:not(.is-free)::after{
+  color:var(--blue-dk) !important;
+}
+
+.bc-badges{
+  display:flex;flex-wrap:wrap;gap:.25rem;
+  padding:.5rem;background:#fafbfc;
+  border-top:1px solid #eee;
+}
+.bc-badge{font-size:.6rem;font-weight:700;
+          padding:.16rem .42rem;border-radius:10px}
+.bc-badge.pending{background:#e4e4e4;color:#666}
+.bc-badge.won{background:var(--gold);color:var(--blue-dk)}
+
+/* ═══════════════════════════════════════════════
+   WIN OVERLAY
+═══════════════════════════════════════════════ */
+.win-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,10,40,.78);z-index:1000;
+  align-items:center;justify-content:center;padding:1rem;
+}
+.win-overlay.show{display:flex}
+.win-modal{
+  background:white;border-radius:var(--r);
+  padding:2.5rem 2rem;text-align:center;
+  max-width:380px;width:100%;
+  animation:pop .45s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.wm-emoji{font-size:4rem;display:block;margin-bottom:.75rem}
+.win-modal h2{font-size:2rem;color:var(--blue);margin-bottom:.4rem}
+.win-modal p{color:var(--gray);margin-bottom:1rem;font-size:.95rem}
+.wm-badge{
+  display:inline-block;background:var(--gold);color:var(--blue-dk);
+  padding:.4rem 1.2rem;border-radius:20px;
+  font-weight:700;font-size:.95rem;margin-bottom:1.5rem;
+}
+
+/* ═══════════════════════════════════════════════
+   ORGANIZER DASHBOARD
+═══════════════════════════════════════════════ */
+#s-dash{background:var(--bg)}
+.dash-layout{
+  display:grid;grid-template-columns:285px 1fr;
+  gap:1.25rem;padding:1.25rem;
+  align-items:start;
+}
+@media(max-width:820px){.dash-layout{grid-template-columns:1fr}}
+
+.dash-side,.dash-main{display:flex;flex-direction:column;gap:1.25rem}
+
+/* Stats 2×2 */
+.stats-2x2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.stat-box{
+  background:var(--blue-lt);border-radius:var(--r-sm);
+  padding:.9rem;text-align:center;
+}
+.stat-box .sn{font-size:2rem;font-weight:800;color:var(--blue);
+              display:block;line-height:1}
+.stat-box .sl{font-size:.7rem;color:var(--gray);margin-top:.2rem}
+
+/* Last called */
+.lc-box{
+  background:var(--blue);color:white;
+  border-radius:var(--r-sm);padding:.75rem;
+  text-align:center;margin-bottom:.75rem;
+}
+.lc-box .lc-lbl{font-size:.67rem;text-transform:uppercase;
+                letter-spacing:.1rem;opacity:.6}
+.lc-box .lc-w{font-size:1rem;font-weight:700;margin-top:.2rem;
+              white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Random call button */
+.rnd-btn{
+  width:100%;background:linear-gradient(135deg,var(--red),#a00010);
+  color:white;border:none;border-radius:var(--r-sm);
+  padding:.75rem;font-size:.93rem;font-weight:700;
+  cursor:pointer;transition:var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  margin-bottom:.75rem;
+}
+.rnd-btn:hover:not(:disabled){
+  filter:brightness(1.1);transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(227,6,19,.35);
+}
+.rnd-btn:disabled{background:#ccc;cursor:not-allowed;transform:none}
+
+/* Search */
+.search-wrap{position:relative;margin-bottom:.6rem}
+.search-wrap input{
+  width:100%;padding:.52rem .8rem .52rem 2rem;
+  border:1.5px solid #dde4f0;border-radius:var(--r-sm);
+  font-size:.84rem;outline:none;
+}
+.search-wrap input:focus{border-color:var(--blue)}
+.search-wrap::before{
+  content:'🔍';position:absolute;
+  left:.5rem;top:50%;transform:translateY(-50%);font-size:.75rem;
+}
+
+/* Buzzword pool chips */
+.bw-pool{display:flex;flex-wrap:wrap;gap:.32rem;
+         max-height:250px;overflow-y:auto}
+.bw-chip{
+  padding:.22rem .6rem;border-radius:10px;
+  font-size:.7rem;font-weight:600;
+  cursor:pointer;transition:var(--ease);
+  border:1.5px solid transparent;
+}
+.bw-chip.nc{background:var(--blue-lt);color:#333}
+.bw-chip.nc:hover{border-color:var(--blue);background:white}
+.bw-chip.c{background:var(--blue);color:white;cursor:default}
+
+/* Called log */
+.cl-log{display:flex;flex-wrap:wrap;gap:.28rem;
+        max-height:150px;overflow-y:auto}
+.cl-tag{
+  background:var(--blue);color:white;
+  padding:.18rem .52rem;border-radius:10px;font-size:.7rem;
+}
+
+/* Winners grid */
+.wboard{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:.75rem}
+.wcat{background:var(--blue-lt);border-radius:var(--r-sm);padding:.75rem}
+.wcat h4{font-size:.76rem;color:var(--blue);margin-bottom:.4rem;
+         display:flex;align-items:center;gap:.3rem}
+.w-entry{font-size:.74rem;padding:.17rem 0;
+         display:flex;align-items:center;gap:.3rem}
+.w-rank{
+  background:var(--gold);color:var(--blue-dk);
+  width:16px;height:16px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:.58rem;font-weight:800;flex-shrink:0;
+}
+.wcat .empty{font-size:.74rem;color:var(--gray);font-style:italic}
+
+/* Tabs */
+.tabs-bar{
+  display:flex;border-bottom:2px solid var(--blue-lt);
+  padding:0 1.2rem;padding-top:.4rem;
+}
+.tab{
+  padding:.55rem .85rem;font-size:.8rem;font-weight:600;
+  cursor:pointer;border:none;background:none;
+  color:var(--gray);border-bottom:2px solid transparent;
+  margin-bottom:-2px;transition:var(--ease);
+}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-pane{display:none;padding:1rem 1.2rem}
+.tab-pane.active{display:block}
+
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem}
+.tbl th{background:var(--blue);color:white;padding:.52rem .8rem;
+        text-align:left;font-size:.76rem;white-space:nowrap}
+.tbl td{padding:.52rem .8rem;border-bottom:1px solid #f0f0f0;
+        vertical-align:middle}
+.tbl tr:hover td{background:#f8f9fa}
+
+.prog-bar{height:7px;background:#e0e0e0;border-radius:4px;
+          overflow:hidden;width:75px;display:inline-block}
+.prog-fill{height:100%;background:var(--blue)}
+
+/* ═══════════════════════════════════════════════
+   ANNOUNCEMENTS & MISC
+═══════════════════════════════════════════════ */
+#announce{
+  position:fixed;bottom:1.5rem;right:1.5rem;
+  background:var(--gold);color:var(--blue-dk);
+  padding:.8rem 1.2rem;border-radius:var(--r-sm);
+  box-shadow:var(--sh-lg);font-weight:600;font-size:.88rem;
+  z-index:900;display:none;max-width:300px;
+  animation:slide-up .3s ease;
+}
+@keyframes slide-up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+#confetti-cv{position:fixed;inset:0;pointer-events:none;z-index:2000;width:100%;height:100%}
+
+.text-muted{color:var(--gray);font-size:.85rem}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#b0b8c8;border-radius:3px}
+</style>
+</head>
+<body>
+<canvas id="confetti-cv"></canvas>
+
+<!-- ══════════════════════════════════════
+     ROLE SELECT
+══════════════════════════════════════ -->
+<div id="s-role" class="screen show">
+  <div style="display:flex;flex-direction:column;align-items:center;
+              justify-content:center;flex:1;padding:2rem;">
+    <div class="logo-wrap">
+      <span class="logo-bingo">BUZZWORD<br>BINGO</span>
+      <p class="logo-sub">BSH Sherpa · OCO · arc42 Edition</p>
+      <p class="logo-cap">Supports up to 400 players</p>
+    </div>
+    <div class="role-row">
+      <button type="button" class="role-btn" onclick="gotoAuth('player')">
+        <span class="ri">🎮</span>
+        <h3>Player</h3>
+        <p>Get tickets &amp; scratch<br>your way to BINGO!</p>
+      </button>
+      <button type="button" class="role-btn" onclick="gotoAuth('organizer')">
+        <span class="ri">🎛️</span>
+        <h3>Organizer</h3>
+        <p>Call buzzwords &amp;<br>manage the game</p>
+      </button>
+    </div>
+    <p class="role-hint">Open in multiple tabs to simulate multi-player · State shared via localStorage + BroadcastChannel</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     AUTH
+══════════════════════════════════════ -->
+<div id="s-auth" class="screen">
+  <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:2rem;">
+    <div class="auth-box">
+      <h2 id="auth-title">🎮 Join the Game</h2>
+      <p class="desc" id="auth-desc">Enter your details to receive your bingo tickets</p>
+
+      <div id="form-player">
+        <div class="field">
+          <label>Your Name</label>
+          <input type="text" id="inp-name" placeholder="e.g. Alex Müller" maxlength="40"
+                 onkeydown="if(event.key==='Enter')doPlayerLogin()">
+        </div>
+        <div class="field">
+          <label>Email / Employee ID</label>
+          <input type="text" id="inp-email" placeholder="alex@bsh-group.com" maxlength="60"
+                 onkeydown="if(event.key==='Enter')doPlayerLogin()">
+        </div>
+        <button class="btn btn-primary mt" onclick="doPlayerLogin()">🎟️ Get My Tickets</button>
+      </div>
+
+      <div id="form-org" style="display:none">
+        <div class="field">
+          <label>Organizer Password</label>
+          <input type="password" id="inp-pass" placeholder="••••••••"
+                 onkeydown="if(event.key==='Enter')doOrgLogin()">
+        </div>
+        <button class="btn btn-primary mt" onclick="doOrgLogin()">🎛️ Open Dashboard</button>
+      </div>
+
+      <button class="btn btn-ghost mt-sm" onclick="show('s-role')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TICKET SELECTION
+══════════════════════════════════════ -->
+<div id="s-tickets" class="screen">
+  <div class="ph">
+    <h1>🎯 BSH Buzzword Bingo</h1>
+    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.2)" onclick="goToMainPage()">← Main Page</button>
+      <span class="badge badge-glass" id="ts-badge">Player</span>
+    </div>
+  </div>
+  <div class="ts-wrap">
+    <div class="card">
+      <div class="card-head"><h3>🎟️ Choose Your Tickets</h3></div>
+      <div class="card-body">
+        <p class="text-muted" style="margin-bottom:.75rem">
+          Pick 1–3 tickets. Each has a unique random mix of buzzwords from the pool of 75.
+        </p>
+        <div class="count-row">
+          <div class="count-opt" id="opt-1" onclick="setCount(1)">1 Ticket</div>
+          <div class="count-opt" id="opt-2" onclick="setCount(2)">2 Tickets</div>
+          <div class="count-opt" id="opt-3" onclick="setCount(3)">3 Tickets</div>
+        </div>
+        <div id="preview-area" style="display:none;margin:.75rem 0">
+          <p style="font-size:.8rem;font-weight:600;color:var(--blue);margin-bottom:.5rem">Preview:</p>
+          <div id="previews" style="display:flex;gap:.75rem;flex-wrap:wrap"></div>
+        </div>
+        <div class="info-box mt">
+          <strong>💡</strong> Each card is 5×5 with a <strong>FREE</strong> space in the centre.
+          Row 3 includes the FREE space — it's the easiest row to complete!
+        </div>
+        <button class="btn btn-primary mt" id="btn-confirm" onclick="confirmTickets()" disabled>
+          ✅ Confirm &amp; Play!
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>🏆 Winning Patterns</h3></div>
+      <div class="card-body">
+        <div class="how-to-win">
+          <div class="wr"><span class="wi">🥇</span><span class="wn">Row 1</span><span class="wd">Complete the top row (5 cells)</span></div>
+          <div class="wr"><span class="wi">🥈</span><span class="wn">Row 2</span><span class="wd">Complete the second row (5 cells)</span></div>
+          <div class="wr"><span class="wi">🥉</span><span class="wn">Row 3</span><span class="wd">Third row — includes FREE space!</span></div>
+          <div class="wr"><span class="wi">🎯</span><span class="wn">Four Corners</span><span class="wd">All 4 corner squares marked</span></div>
+          <div class="wr"><span class="wi">🏠</span><span class="wn">Full House</span><span class="wd">Every single square marked!</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PLAYER GAME
+══════════════════════════════════════ -->
+<div id="s-game" class="screen">
+  <div class="ph">
+    <h1>🎯 BSH Buzzword Bingo</h1>
+    <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.2)" onclick="goToMainPage()">← Main Page</button>
+      <span class="badge badge-blue" id="g-player-badge">Player</span>
+      <span class="badge badge-glass" id="g-called-badge">0 called</span>
+    </div>
+  </div>
+
+  <!-- Word-called ticker -->
+  <div class="call-ticker" id="call-ticker">
+    📢 Just called: <strong id="ticker-word"></strong>
+  </div>
+
+  <!-- My wins bar -->
+  <div class="wins-bar" id="wins-bar">
+    <strong>🏆 My Wins:</strong>
+    <div id="wins-pills"></div>
+  </div>
+
+  <div class="hint-bar">
+    🔵 Blue = word called &nbsp;|&nbsp; Click a cell to scratch it &nbsp;|&nbsp; Gold highlight = winning row/pattern
+  </div>
+
+  <div class="tickets-area" id="tickets-area">
+    <p class="text-muted">Loading tickets…</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ORGANIZER DASHBOARD
+══════════════════════════════════════ -->
+<div id="s-dash" class="screen">
+  <div class="ph">
+    <h1>🎛️ Organizer Dashboard</h1>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.2)" onclick="goToMainPage()">← Main Page</button>
+      <span class="badge badge-green">● Live</span>
+      <button class="btn btn-sm btn-red" onclick="doReset()">🔄 Reset Game</button>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white"
+              onclick="loadG();refreshDash()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="dash-layout">
+
+    <!-- ─── SIDEBAR ─── -->
+    <div class="dash-side">
+
+      <!-- Stats -->
+      <div class="card">
+        <div class="card-head"><h3>📊 Live Stats</h3></div>
+        <div class="card-body">
+          <div class="stats-2x2">
+            <div class="stat-box"><span class="sn" id="s-players">0</span><span class="sl">Players</span></div>
+            <div class="stat-box"><span class="sn" id="s-tickets">0</span><span class="sl">Tickets</span></div>
+            <div class="stat-box"><span class="sn" id="s-called">0</span><span class="sl">Words Called</span></div>
+            <div class="stat-box"><span class="sn" id="s-wins">0</span><span class="sl">Total Wins</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call Buzzword -->
+      <div class="card">
+        <div class="card-head"><h3>📢 Call Buzzword</h3></div>
+        <div class="card-body">
+          <div class="lc-box">
+            <div class="lc-lbl">Last Called</div>
+            <div class="lc-w" id="lc-word">—</div>
+          </div>
+          <button class="rnd-btn" id="btn-rnd" onclick="callRandom()">
+            🎲 Call Random Word
+          </button>
+          <div class="search-wrap">
+            <input type="text" id="bw-search" placeholder="Search buzzwords…"
+                   oninput="renderWordPool()">
+          </div>
+          <div class="bw-pool" id="bw-pool"></div>
+        </div>
+      </div>
+
+      <!-- Called Words Log -->
+      <div class="card">
+        <div class="card-head">
+          <h3>📋 Called Words</h3>
+          <span class="badge badge-glass" id="cl-cnt">0</span>
+        </div>
+        <div class="card-body">
+          <div class="cl-log" id="cl-log">
+            <span class="text-muted" style="font-style:italic">None yet</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sidebar -->
+
+    <!-- ─── MAIN ─── -->
+    <div class="dash-main">
+
+      <!-- Winners Board -->
+      <div class="card">
+        <div class="card-head" style="background:linear-gradient(135deg,#b8860b,#e67e00)">
+          <h3>🏆 Winners Board</h3>
+          <span class="badge" style="background:rgba(255,255,255,.25);color:white"
+                id="wins-total-badge">0 wins</span>
+        </div>
+        <div class="card-body">
+          <div class="wboard" id="wboard"></div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="card" style="overflow:hidden">
+        <div class="tabs-bar">
+          <button class="tab active" onclick="switchTab(this,'tab-players')">
+            👥 Players <span id="tc-players">(0)</span>
+          </button>
+          <button class="tab" onclick="switchTab(this,'tab-tickets')">
+            🎟️ Tickets <span id="tc-tickets">(0)</span>
+          </button>
+          <button class="tab" onclick="switchTab(this,'tab-words')">
+            📚 Buzzword Pool
+          </button>
+        </div>
+
+        <!-- Players -->
+        <div class="tab-pane active" id="tab-players">
+          <div style="overflow-x:auto">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>#</th><th>Name</th><th>Email / ID</th>
+                  <th>Tickets</th><th>Scratched</th><th>Wins</th><th>Joined</th>
+                </tr>
+              </thead>
+              <tbody id="players-tbody">
+                <tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--gray);font-style:italic">No players yet…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tickets -->
+        <div class="tab-pane" id="tab-tickets">
+          <div style="overflow-x:auto">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Ticket ID</th><th>Player</th>
+                  <th>Progress</th><th>Wins</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="tickets-tbody">
+                <tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--gray);font-style:italic">No tickets yet…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Buzzword Pool full list -->
+        <div class="tab-pane" id="tab-words">
+          <p class="text-muted" style="margin-bottom:.75rem">
+            75 buzzwords from Sherpa, OCO &amp; arc42 docs.
+            <span style="color:var(--blue);font-weight:600">Blue = called.</span>
+            Click uncalled words to call them directly.
+          </p>
+          <div id="all-words" style="display:flex;flex-wrap:wrap;gap:.35rem"></div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div class="win-overlay" id="win-overlay" onclick="closeWin()">
+  <div class="win-modal" onclick="event.stopPropagation()">
+    <span class="wm-emoji" id="wm-emoji">🏆</span>
+    <h2>BINGO!</h2>
+    <p id="wm-desc">You completed a winning pattern!</p>
+    <div class="wm-badge" id="wm-badge"></div><br>
+    <button class="btn btn-gold btn-lg" onclick="closeWin()">🎉 Claim it!</button>
+  </div>
+</div>
+
+<!-- Announcement toast -->
+<div id="announce"></div>
+
+<script>
+'use strict';
+/* ════════════════════════════════════════════════════════════
+   BSH SHERPA BUZZWORD BINGO — GAME ENGINE  v1.0
+   Single-file • localStorage state • BroadcastChannel sync
+   Supports 400 players (use a server for cross-machine play)
+════════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────
+   BUZZWORD POOL (75 words)
+────────────────────────────────────── */
+const WORDS = [
+  // Sherpa (10)
+  "Sherpa Platform","Sherpa API","Sherpa Migration","Sherpa Module","Sherpa Config",
+  "Sherpa Schema","Sherpa Pipeline","Sherpa Release","Sherpa Tenant","Sherpa Service",
+  // OCO (10)
+  "OCO System","OCO Migration","OCO Schema","OCO Dataflow","Order Config",
+  "Order Management","OCO Connector","OCO Integration","OCO Legacy","OCO Mapping",
+  // arc42 / Architecture (10)
+  "arc42 Framework","System Context","Container View","Component Design","Architecture Decision",
+  "Domain Model","Bounded Context","Service Contract","Sequence Diagram","Event-Driven",
+  // Tech Stack (15)
+  "Microservices","API Gateway","REST API","OAuth 2.0","JWT Token",
+  "Kubernetes","Docker","Helm Chart","CI/CD Pipeline","GitOps",
+  "Redis Cache","PostgreSQL","Apache Kafka","Service Mesh","Feature Flags",
+  // Data & Integration (10)
+  "Data Schema","Schema Mapping","ETL Process","Data Migration","Master Data",
+  "Data Pipeline","Data Lake","Legacy System","SAP Integration","ERP Connector",
+  // DevOps / Cloud (10)
+  "Infrastructure as Code","Blue-Green Deploy","Canary Release","Load Balancer","High Availability",
+  "Fault Tolerance","Scalability","Observability","Log Aggregation","Multi-tenancy",
+  // Process (5)
+  "Agile Sprint","Technical Debt","MVP","Product Backlog","Definition of Done",
+  // Corporate (5)
+  "Synergy","Alignment","Deep Dive","Quick Win","Best Practice"
+];
+
+/* Win pattern definitions
+   cells = flat indices in 5×5 grid (row-major, 0-based)
+   FREE space is at index 12 (centre) */
+const PATTERNS = {
+  row1:       {name:"Row 1",       icon:"🥇",cells:[0,1,2,3,4],          desc:"Top row complete!"},
+  row2:       {name:"Row 2",       icon:"🥈",cells:[5,6,7,8,9],          desc:"Second row complete!"},
+  row3:       {name:"Row 3",       icon:"🥉",cells:[10,11,12,13,14],     desc:"Third row — FREE space included!"},
+  fourCorners:{name:"Four Corners",icon:"🎯",cells:[0,4,20,24],          desc:"All four corners marked!"},
+  fullHouse:  {name:"Full House",  icon:"🏠",cells:[...Array(25).keys()],desc:"Every square marked — Full House!"}
+};
+
+/* ──────────────────────────────────────
+   CONSTANTS
+────────────────────────────────────── */
+const ORG_PASS  = "sherpa2024";
+const G_KEY     = "bshBingo_v2_state";
+const S_KEY     = "bshBingo_v2_session";
+const CH_NAME   = "bshBingoChannel";
+
+/* ──────────────────────────────────────
+   STATE
+────────────────────────────────────── */
+// G = shared game state (localStorage)
+let G = {
+  calledWords : [],
+  players     : {},   // id → {id, name, email, ticketIds[], joinedAt}
+  tickets     : {},   // id → {id, playerId, grid[], scratched[], wins[]}
+  winners     : {row1:[],row2:[],row3:[],fourCorners:[],fullHouse:[]}
+};
+
+// S = session state (sessionStorage — per tab)
+let S = {playerId:null, role:null};
+
+let bc = null;  // BroadcastChannel
+
+/* ──────────────────────────────────────
+   PERSISTENCE
+────────────────────────────────────── */
+function saveG(){
+  try{ localStorage.setItem(G_KEY, JSON.stringify(G)) }catch(e){}
+}
+function loadG(){
+  try{
+    const raw = localStorage.getItem(G_KEY);
+    if(!raw) return;
+    const p = JSON.parse(raw);
+    G.calledWords = p.calledWords || [];
+    G.players     = p.players     || {};
+    G.tickets     = p.tickets     || {};
+    G.winners     = {
+      row1       : p.winners?.row1        || [],
+      row2       : p.winners?.row2        || [],
+      row3       : p.winners?.row3        || [],
+      fourCorners: p.winners?.fourCorners || [],
+      fullHouse  : p.winners?.fullHouse   || []
+    };
+  }catch(e){}
+}
+function saveS(){ try{ sessionStorage.setItem(S_KEY, JSON.stringify(S)) }catch(e){} }
+function loadS(){
+  try{
+    const raw = sessionStorage.getItem(S_KEY);
+    if(raw){ const p=JSON.parse(raw); S.playerId=p.playerId; S.role=p.role; }
+  }catch(e){}
+}
+
+/* ──────────────────────────────────────
+   BROADCAST (cross-tab sync)
+────────────────────────────────────── */
+function initBC(){
+  try{
+    bc = new BroadcastChannel(CH_NAME);
+    bc.onmessage = ({data}) => {
+      loadG();
+      onMsg(data.type, data.payload||{});
+    };
+  }catch(e){ console.warn("BroadcastChannel unavailable:", e.message); }
+}
+function send(type, payload={}){
+  saveG();
+  if(bc) bc.postMessage({type, payload});
+}
+function onMsg(type, payload){
+  if(type==='WORD_CALLED' && S.role==='player'){
+    showTicker(payload.word);
+    highlightWord(payload.word);
+    updateGameHeader();
+
+  } else if(type==='PLAYER_JOINED' && S.role==='organizer'){
+    refreshDash();
+    announce(`👋 ${payload.name} joined!`);
+
+  } else if(type==='TICKETS_ISSUED' && S.role==='organizer'){
+    refreshDash();
+
+  } else if(type==='WIN' && S.role==='organizer'){
+    refreshDash();
+    announce(`🏆 ${payload.playerName} — ${payload.pattern}!`);
+
+  } else if(type==='RESET'){
+    if(S.role==='player'){
+      alert("The organizer has reset the game. Reloading…");
+      sessionStorage.clear();
+      location.reload();
+    } else if(S.role==='organizer'){
+      refreshDash();
+      announce("🔄 Game reset!");
+    }
+  }
+}
+
+/* ──────────────────────────────────────
+   SCREEN MANAGEMENT
+────────────────────────────────────── */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+
+function goToMainPage(){
+  clearInterval(window._dInt);
+  S.role = null;
+  S.playerId = null;
+  saveS();
+  document.getElementById('inp-pass').value = '';
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-email').value = '';
+  show('s-role');
+}
+
+/* ──────────────────────────────────────
+   AUTH — ROLE SELECT
+────────────────────────────────────── */
+function gotoAuth(role){
+  S.role = role;
+  const isPlayer = role==='player';
+  document.getElementById('auth-title').textContent = isPlayer
+    ? '🎮 Join the Game' : '🎛️ Organizer Login';
+  document.getElementById('auth-desc').textContent = isPlayer
+    ? 'Enter your details to receive bingo tickets'
+    : 'Enter the organizer password';
+  document.getElementById('form-player').style.display = isPlayer ? 'block':'none';
+  document.getElementById('form-org').style.display    = isPlayer ? 'none':'block';
+  show('s-auth');
+}
+
+/* ──────────────────────────────────────
+   AUTH — PLAYER LOGIN
+────────────────────────────────────── */
+function doPlayerLogin(){
+  const name  = document.getElementById('inp-name').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  if(!name)  { alert('Please enter your name!'); return; }
+  if(!email) { alert('Please enter your email or employee ID!'); return; }
+
+  loadG();
+
+  // Returning player? Look up by email
+  const existing = Object.values(G.players).find(p=>p.email===email);
+  if(existing){
+    S.playerId = existing.id;
+    saveS();
+    if(existing.ticketIds && existing.ticketIds.length>0) enterGame();
+    else showTicketSelect();
+    return;
+  }
+
+  // New player
+  const id = uid('P');
+  G.players[id] = {id, name, email, ticketIds:[], joinedAt:Date.now()};
+  S.playerId = id;
+  saveS();
+  saveG();
+  send('PLAYER_JOINED', {name, email, playerId:id});
+  showTicketSelect();
+}
+
+/* ──────────────────────────────────────
+   AUTH — ORGANIZER LOGIN
+────────────────────────────────────── */
+function doOrgLogin(){
+  const pass = document.getElementById('inp-pass').value;
+  if(pass !== ORG_PASS){ alert('❌ Wrong password!'); document.getElementById('inp-pass').value=''; return; }
+  S.role = 'organizer';
+  saveS();
+  loadG();
+  show('s-dash');
+  initDash();
+}
+
+/* ──────────────────────────────────────
+   TICKET SELECTION
+────────────────────────────────────── */
+let chosenCount = 0;
+
+function showTicketSelect(){
+  loadG();
+  const p = G.players[S.playerId];
+  document.getElementById('ts-badge').textContent = p ? p.name : 'Player';
+  chosenCount = 0;
+  document.getElementById('btn-confirm').disabled = true;
+  document.getElementById('preview-area').style.display='none';
+  [1,2,3].forEach(n=>document.getElementById(`opt-${n}`).classList.remove('active'));
+  show('s-tickets');
+}
+
+function setCount(n){
+  chosenCount = n;
+  [1,2,3].forEach(i=>document.getElementById(`opt-${i}`).classList.toggle('active',i===n));
+  document.getElementById('btn-confirm').disabled = false;
+  document.getElementById('btn-confirm').textContent = `✅ Get ${n} Ticket${n>1?'s':''} & Play!`;
+
+  // Mini previews
+  const area = document.getElementById('preview-area');
+  const prev = document.getElementById('previews');
+  area.style.display = 'block';
+  prev.innerHTML = '';
+  for(let i=0;i<n;i++){
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'text-align:center';
+    const g = document.createElement('div');
+    g.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#c8d4e8;width:90px;border-radius:4px;overflow:hidden;margin:0 auto';
+    for(let j=0;j<25;j++){
+      const c=document.createElement('div');
+      c.style.cssText=`background:${j===12?'var(--gold)':'white'};height:14px`;
+      g.appendChild(c);
+    }
+    wrap.appendChild(g);
+    const lbl=document.createElement('div');
+    lbl.style.cssText='font-size:.68rem;color:var(--gray);margin-top:.3rem';
+    lbl.textContent=`Ticket ${i+1}`;
+    wrap.appendChild(lbl);
+    prev.appendChild(wrap);
+  }
+}
+
+function confirmTickets(){
+  if(!chosenCount) return;
+  loadG();
+  const player = G.players[S.playerId];
+  if(!player){ alert('Session error — please refresh.'); return; }
+
+  for(let i=0;i<chosenCount;i++){
+    const tid  = uid('T');
+    const grid = makeGrid();
+    G.tickets[tid] = {id:tid, playerId:S.playerId, grid, scratched:[12], wins:[]};
+    player.ticketIds.push(tid);
+  }
+  saveG();
+  send('TICKETS_ISSUED', {playerId:S.playerId, count:chosenCount});
+  enterGame();
+}
+
+/* ──────────────────────────────────────
+   PLAYER GAME — ENTRY
+────────────────────────────────────── */
+function enterGame(){
+  loadG();
+  const p = G.players[S.playerId];
+  document.getElementById('g-player-badge').textContent = `👤 ${p?.name||'Player'}`;
+  updateGameHeader();
+  renderAllCards();
+  updateWinsBar();
+  show('s-game');
+}
+
+function updateGameHeader(){
+  const b = document.getElementById('g-called-badge');
+  if(b) b.textContent = `${G.calledWords.length}/75 called`;
+}
+
+/* ──────────────────────────────────────
+   RENDER ALL BINGO CARDS
+────────────────────────────────────── */
+function renderAllCards(){
+  loadG();
+  const area = document.getElementById('tickets-area');
+  area.innerHTML = '';
+  const player = G.players[S.playerId];
+  if(!player||!player.ticketIds?.length){
+    area.innerHTML='<p class="text-muted">No tickets found — please refresh.</p>';
+    return;
+  }
+  player.ticketIds.forEach((tid,i)=>{
+    const t = G.tickets[tid];
+    if(t) area.appendChild(buildCard(t, i+1));
+  });
+}
+
+/* ──────────────────────────────────────
+   BUILD A SINGLE BINGO CARD ELEMENT
+────────────────────────────────────── */
+function buildCard(ticket, num){
+  const hasWon = ticket.wins?.length > 0;
+
+  const wrap = el('div','bingo-card'+(hasWon?' is-winner':''));
+  wrap.id = `card-${ticket.id}`;
+
+  // Top bar
+  const top = el('div','bc-top');
+  top.innerHTML=`<span class="bc-id">${esc(ticket.id)}</span>
+                 <span class="bc-num">Ticket #${num}</span>`;
+
+  // BINGO letters
+  const ltrs = el('div','bc-letters');
+  'BINGO'.split('').forEach(l=>{ const s=el('span'); s.textContent=l; ltrs.appendChild(s); });
+
+  // 5×5 Grid
+  const grid = el('div','bc-grid');
+  ticket.grid.forEach((word,idx)=>{
+    const cell = el('div','bc-cell');
+    cell.id = `cell-${ticket.id}-${idx}`;
+
+    if(word==='FREE'){
+      cell.classList.add('is-free');
+      cell.innerHTML = '<strong>★ FREE</strong>';
+    } else {
+      cell.textContent = word;
+      const scratched = ticket.scratched?.includes(idx);
+      const called    = G.calledWords.includes(word);
+      if(scratched)   cell.classList.add('is-scratched');
+      else if(called) cell.classList.add('is-called');
+
+      if(!scratched){
+        cell.title  = `Click to scratch: ${word}`;
+        cell.onclick = ()=>doScratch(ticket.id, idx, word);
+      }
+    }
+    grid.appendChild(cell);
+  });
+
+  // Badges
+  const badges = el('div','bc-badges');
+  badges.id = `badges-${ticket.id}`;
+  Object.entries(PATTERNS).forEach(([k,p])=>{
+    const b = el('span','bc-badge '+(ticket.wins?.includes(k)?'won':'pending'));
+    b.textContent = `${p.icon} ${p.name}`;
+    badges.appendChild(b);
+  });
+
+  // Assemble
+  wrap.appendChild(top);
+  wrap.appendChild(ltrs);
+  wrap.appendChild(grid);
+  wrap.appendChild(badges);
+
+  // Highlight any already-won patterns
+  (ticket.wins||[]).forEach(k=>hilitePattern(ticket.id, PATTERNS[k]));
+
+  return wrap;
+}
+
+/* ──────────────────────────────────────
+   SCRATCH A CELL
+────────────────────────────────────── */
+function doScratch(tid, idx, word){
+  loadG();
+  const ticket = G.tickets[tid];
+  if(!ticket || ticket.scratched?.includes(idx)) return;
+
+  ticket.scratched.push(idx);
+
+  // Update DOM
+  const cell = document.getElementById(`cell-${tid}-${idx}`);
+  if(cell){
+    cell.className = 'bc-cell is-scratched';
+    cell.onclick   = null;
+    cell.title     = '';
+    // Scratch pop animation
+    cell.style.transform = 'scale(.82)';
+    setTimeout(()=>cell.style.transform='', 160);
+  }
+
+  // Win detection
+  const player  = G.players[S.playerId];
+  const newWins = detectWins(ticket);
+
+  // Record winners in shared state
+  newWins.forEach(key=>{
+    if(!G.winners[key]) G.winners[key]=[];
+    G.winners[key].push({
+      playerName : player?.name||'Unknown',
+      playerId   : S.playerId,
+      ticketId   : tid,
+      time       : Date.now()
+    });
+  });
+
+  saveG();
+
+  if(newWins.length>0){
+    newWins.forEach(key=>{
+      const p = PATTERNS[key];
+      showWinOverlay(p);
+      hilitePattern(tid, p);
+      document.getElementById(`card-${tid}`)?.classList.add('is-winner');
+      refreshBadges(ticket);
+      send('WIN', {playerName:player?.name, ticketId:tid, pattern:p.name});
+      confetti();
+    });
+    updateWinsBar();
+  }
+}
+
+/* ──────────────────────────────────────
+   WIN DETECTION
+────────────────────────────────────── */
+function detectWins(ticket){
+  const s = new Set(ticket.scratched);
+  const fresh = [];
+  Object.entries(PATTERNS).forEach(([key,p])=>{
+    if(ticket.wins.includes(key)) return;
+    // A cell counts if scratched OR if it's the FREE space
+    const done = p.cells.every(i => s.has(i) || ticket.grid[i]==='FREE');
+    if(done){ ticket.wins.push(key); fresh.push(key); }
+  });
+  return fresh;
+}
+
+/* ──────────────────────────────────────
+   PATTERN HIGHLIGHT
+────────────────────────────────────── */
+function hilitePattern(tid, pattern){
+  pattern.cells.forEach(i=>{
+    const c = document.getElementById(`cell-${tid}-${i}`);
+    if(c && !c.classList.contains('is-free')) c.classList.add('is-win-hl');
+  });
+}
+
+function refreshBadges(ticket){
+  const cont = document.getElementById(`badges-${ticket.id}`);
+  if(!cont) return;
+  cont.innerHTML='';
+  Object.entries(PATTERNS).forEach(([k,p])=>{
+    const b = el('span','bc-badge '+(ticket.wins.includes(k)?'won':'pending'));
+    b.textContent=`${p.icon} ${p.name}`;
+    cont.appendChild(b);
+  });
+}
+
+/* ──────────────────────────────────────
+   WINS BAR (player)
+────────────────────────────────────── */
+function updateWinsBar(){
+  loadG();
+  const player = G.players[S.playerId];
+  if(!player) return;
+  const all = [];
+  player.ticketIds.forEach(tid=>{
+    const t=G.tickets[tid];
+    if(t?.wins) t.wins.forEach(w=>all.push(w));
+  });
+  const bar   = document.getElementById('wins-bar');
+  const pills = document.getElementById('wins-pills');
+  if(!all.length){ bar.classList.remove('show'); return; }
+  bar.classList.add('show');
+  pills.innerHTML = all.map(w=>`<span class="win-pill">${PATTERNS[w].icon} ${PATTERNS[w].name}</span>`).join('');
+}
+
+/* ──────────────────────────────────────
+   CALL TICKER (player, on broadcast)
+────────────────────────────────────── */
+function showTicker(word){
+  const t = document.getElementById('call-ticker');
+  document.getElementById('ticker-word').textContent = word;
+  t.style.display = 'block';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(()=>t.style.display='none', 5500);
+}
+
+function highlightWord(word){
+  document.querySelectorAll('.bc-cell').forEach(cell=>{
+    if(cell.textContent===word && !cell.classList.contains('is-scratched'))
+      cell.classList.add('is-called');
+  });
+}
+
+/* ──────────────────────────────────────
+   WIN OVERLAY
+────────────────────────────────────── */
+function showWinOverlay(p){
+  document.getElementById('wm-emoji').textContent = p.icon;
+  document.getElementById('wm-desc').textContent  = p.desc;
+  document.getElementById('wm-badge').textContent = `${p.icon} ${p.name}`;
+  document.getElementById('win-overlay').classList.add('show');
+}
+function closeWin(){
+  document.getElementById('win-overlay').classList.remove('show');
+}
+
+/* ──────────────────────────────────────
+   ORGANIZER DASHBOARD
+────────────────────────────────────── */
+function initDash(){
+  renderWordPool();
+  refreshDash();
+  // Auto-refresh every 3 s
+  clearInterval(window._dInt);
+  window._dInt = setInterval(()=>{
+    if(document.getElementById('s-dash').classList.contains('show')){
+      loadG(); refreshDash();
+    }
+  }, 3000);
+}
+
+function refreshDash(){
+  const players = Object.values(G.players);
+  const tickets = Object.values(G.tickets);
+  const wins    = Object.values(G.winners).reduce((s,a)=>s+a.length,0);
+
+  // Stats
+  document.getElementById('s-players').textContent = players.length;
+  document.getElementById('s-tickets').textContent = tickets.length;
+  document.getElementById('s-called').textContent  = G.calledWords.length;
+  document.getElementById('s-wins').textContent    = wins;
+
+  // Tab counts
+  document.getElementById('tc-players').textContent = `(${players.length})`;
+  document.getElementById('tc-tickets').textContent = `(${tickets.length})`;
+
+  // Called log
+  const cl  = document.getElementById('cl-log');
+  const cnt = document.getElementById('cl-cnt');
+  cnt.textContent = G.calledWords.length;
+  cl.innerHTML = G.calledWords.length===0
+    ? '<span class="text-muted" style="font-style:italic">None yet</span>'
+    : [...G.calledWords].reverse()
+        .map(w=>`<span class="cl-tag">${esc(w)}</span>`).join('');
+
+  // Random btn
+  const uncalled = WORDS.filter(w=>!G.calledWords.includes(w));
+  document.getElementById('btn-rnd').disabled = uncalled.length===0;
+
+  renderWordPool();
+  renderWinners(wins);
+  renderPlayersTable(players, tickets);
+  renderTicketsTable(tickets);
+  renderAllWords();
+}
+
+/* ──────────────────────────────────────
+   BUZZWORD POOL (sidebar chips)
+────────────────────────────────────── */
+function renderWordPool(){
+  const search = (document.getElementById('bw-search')?.value||'').toLowerCase();
+  const pool   = document.getElementById('bw-pool');
+  if(!pool) return;
+  pool.innerHTML='';
+  WORDS.filter(w=>w.toLowerCase().includes(search)).forEach(w=>{
+    const called = G.calledWords.includes(w);
+    const chip   = el('div','bw-chip '+(called?'c':'nc'));
+    chip.textContent = w;
+    chip.title = called ? '✓ Already called' : `Call: ${w}`;
+    if(!called) chip.onclick = ()=>callWord(w);
+    pool.appendChild(chip);
+  });
+}
+
+/* ──────────────────────────────────────
+   CALL A WORD
+────────────────────────────────────── */
+function callWord(word){
+  loadG();
+  if(G.calledWords.includes(word)) return;
+  G.calledWords.push(word);
+  document.getElementById('lc-word').textContent = word;
+  send('WORD_CALLED', {word});
+  refreshDash();
+  announce(`📢 Called: "${word}"`);
+}
+
+function callRandom(){
+  loadG();
+  const pool = WORDS.filter(w=>!G.calledWords.includes(w));
+  if(!pool.length) return;
+  callWord(pool[Math.floor(Math.random()*pool.length)]);
+}
+
+/* ──────────────────────────────────────
+   WINNERS BOARD
+────────────────────────────────────── */
+function renderWinners(total){
+  document.getElementById('wins-total-badge').textContent=`${total} win${total!==1?'s':''}`;
+  const board = document.getElementById('wboard');
+  board.innerHTML='';
+  Object.entries(PATTERNS).forEach(([key,p])=>{
+    const list = G.winners[key]||[];
+    const cat  = el('div','wcat');
+    const h4   = el('h4');
+    h4.textContent = `${p.icon} ${p.name}`;
+    cat.appendChild(h4);
+    if(!list.length){
+      const e=el('span','empty'); e.textContent='No winner yet'; cat.appendChild(e);
+    } else {
+      list.slice(0,5).forEach((w,i)=>{
+        const row = el('div','w-entry');
+        row.innerHTML=`<span class="w-rank">${i+1}</span>
+          <strong>${esc(w.playerName)}</strong>
+          <span style="color:var(--gray);font-size:.67rem">${esc(w.ticketId)}</span>`;
+        cat.appendChild(row);
+      });
+      if(list.length>5){
+        const more=el('span','empty');
+        more.textContent=`+${list.length-5} more`;
+        cat.appendChild(more);
+      }
+    }
+    board.appendChild(cat);
+  });
+}
+
+/* ──────────────────────────────────────
+   PLAYERS TABLE
+────────────────────────────────────── */
+function renderPlayersTable(players, tickets){
+  const tbody = document.getElementById('players-tbody');
+  if(!players.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--gray);font-style:italic">No players yet…</td></tr>';
+    return;
+  }
+  tbody.innerHTML = players.map((p,i)=>{
+    const ptix = p.ticketIds.map(id=>G.tickets[id]).filter(Boolean);
+    const scratched = ptix.reduce((s,t)=>s+Math.max(0,(t.scratched?.length||0)-1),0);
+    const wins      = ptix.reduce((s,t)=>s+(t.wins?.length||0),0);
+    const time      = new Date(p.joinedAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const pct       = ptix.length
+      ? Math.min(100,Math.round(scratched/(24*ptix.length)*100)) : 0;
+    return `<tr>
+      <td>${i+1}</td>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td style="font-size:.73rem;color:var(--gray)">${esc(p.email)}</td>
+      <td>
+        <span class="badge badge-blue">${p.ticketIds.length}</span>
+        <span style="font-size:.68rem;color:var(--gray);margin-left:.3rem">
+          ${p.ticketIds.map(esc).join(', ')}
+        </span>
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:.4rem">
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+          <small>${scratched}</small>
+        </div>
+      </td>
+      <td>${wins>0?`<span class="badge badge-gold">🏆 ${wins}</span>`:'—'}</td>
+      <td style="color:var(--gray);font-size:.73rem">${time}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ──────────────────────────────────────
+   TICKETS TABLE
+────────────────────────────────────── */
+function renderTicketsTable(tickets){
+  const tbody = document.getElementById('tickets-tbody');
+  if(!tickets.length){
+    tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--gray);font-style:italic">No tickets yet…</td></tr>';
+    return;
+  }
+  tbody.innerHTML = tickets.map(t=>{
+    const player    = G.players[t.playerId];
+    const scratched = Math.max(0,(t.scratched?.length||0)-1);
+    const pct       = Math.round(scratched/24*100);
+    const winNames  = (t.wins||[]).map(k=>`${PATTERNS[k].icon} ${PATTERNS[k].name}`).join(', ');
+    return `<tr>
+      <td><code style="font-size:.7rem;background:#f0f0f0;padding:1px 5px;border-radius:3px">${esc(t.id)}</code></td>
+      <td>${player?esc(player.name):'<em>Unknown</em>'}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:.4rem">
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+          <small>${scratched}/24</small>
+        </div>
+      </td>
+      <td style="font-size:.75rem">${winNames||'—'}</td>
+      <td>${(t.wins?.length>0)
+        ?'<span class="badge badge-gold">🏆 Winner</span>'
+        :'<span class="badge badge-gray">In Play</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ──────────────────────────────────────
+   ALL WORDS TAB
+────────────────────────────────────── */
+function renderAllWords(){
+  const pool = document.getElementById('all-words');
+  if(!pool) return;
+  pool.innerHTML = WORDS.map((w,i)=>{
+    const called = G.calledWords.includes(w);
+    return `<span
+      class="bw-chip ${called?'c':'nc'}"
+      title="${called?'✓ Called':'#'+(i+1)+' — click to call'}"
+      ${!called?`onclick="callWord('${esc(w,true)}');renderAllWords()"`:''}>
+      ${called?'✓ ':''+ '#'+(i+1)+' '}${esc(w)}
+    </span>`;
+  }).join('');
+}
+
+/* ──────────────────────────────────────
+   TABS
+────────────────────────────────────── */
+function switchTab(btn, paneId){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById(paneId).classList.add('active');
+}
+
+/* ──────────────────────────────────────
+   GAME RESET
+────────────────────────────────────── */
+function doReset(){
+  if(!confirm('⚠️ Reset ALL game data — players, tickets, scores, called words?\n\nThis cannot be undone!')) return;
+  G = {
+    calledWords:[],players:{},tickets:{},
+    winners:{row1:[],row2:[],row3:[],fourCorners:[],fullHouse:[]}
+  };
+  saveG();
+  send('RESET',{});
+  refreshDash();
+  announce('🔄 Game fully reset!');
+}
+
+/* ──────────────────────────────────────
+   ANNOUNCEMENT TOAST
+────────────────────────────────────── */
+function announce(msg){
+  const a = document.getElementById('announce');
+  a.textContent = msg;
+  a.style.display='block';
+  clearTimeout(a._t);
+  a._t = setTimeout(()=>a.style.display='none', 4500);
+}
+
+/* ──────────────────────────────────────
+   CONFETTI 🎊
+────────────────────────────────────── */
+function confetti(){
+  const cv  = document.getElementById('confetti-cv');
+  const ctx = cv.getContext('2d');
+  cv.width  = innerWidth;
+  cv.height = innerHeight;
+  const COLS=['#003366','#e30613','#ffd700','#28a745','#4ecdc4','#ff6b6b','#ff8c00','#9b59b6'];
+  const bits = Array.from({length:130},()=>({
+    x:Math.random()*cv.width, y:Math.random()*cv.height - cv.height,
+    w:Math.random()*13+5, h:Math.random()*7+3,
+    color:COLS[Math.floor(Math.random()*COLS.length)],
+    vx:Math.random()*4-2, vy:Math.random()*5+2.5,
+    a:Math.random()*360, spin:Math.random()*8-4
+  }));
+  let f=0;
+  (function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    bits.forEach(b=>{
+      ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(b.a*Math.PI/180);
+      ctx.fillStyle=b.color; ctx.fillRect(-b.w/2,-b.h/2,b.w,b.h);
+      ctx.restore();
+      b.x+=b.vx; b.y+=b.vy; b.vy+=.09; b.a+=b.spin;
+    });
+    if(++f<140) requestAnimationFrame(loop);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+/* ──────────────────────────────────────
+   UTILITIES
+────────────────────────────────────── */
+function uid(prefix=''){
+  return prefix+Date.now().toString(36).toUpperCase()+
+         Math.random().toString(36).substr(2,5).toUpperCase();
+}
+
+function makeGrid(){
+  // Shuffle pool, take 24, insert FREE at centre (index 12)
+  const pool = [...WORDS].sort(()=>Math.random()-.5).slice(0,24);
+  pool.splice(12,0,'FREE');
+  return pool;  // 25-element array
+}
+
+// Lightweight DOM element builder
+function el(tag, className=''){
+  const e = document.createElement(tag);
+  if(className) e.className = className;
+  return e;
+}
+
+// HTML-escape
+function esc(s='', attr=false){
+  const r = String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return attr ? r.replace(/'/g,'&#039;') : r;
+}
+
+/* ──────────────────────────────────────
+   BOOT
+────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded',()=>{
+  loadG();
+  loadS();
+  initBC();
+
+  // Restore session
+  if(S.role==='organizer'){
+    show('s-dash');
+    initDash();
+  } else if(S.role==='player' && S.playerId){
+    const p = G.players[S.playerId];
+    if(p && p.ticketIds?.length>0) enterGame();
+    else if(p)                      showTicketSelect();
+    else                            show('s-role');
+  } else {
+    show('s-role');
+  }
+
+  // Resize handler for confetti canvas
+  window.addEventListener('resize',()=>{
+    const cv=document.getElementById('confetti-cv');
+    cv.width=innerWidth; cv.height=innerHeight;
+  });
+});
+</script>
+</body>
+</html>
