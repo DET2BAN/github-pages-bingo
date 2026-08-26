@@ -368,6 +368,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);
   font-weight:700;font-size:.95rem;margin-bottom:1.5rem;
 }
 
+.vt-modal{max-width:560px}
+.vt-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:2px;background:#c8d4e8;padding:2px;border-radius:8px;
+}
+.vt-cell{
+  min-height:46px;background:#fff;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:4px 3px;font-size:.6rem;line-height:1.2;
+  word-break:break-word;
+}
+.vt-cell.free{background:var(--gold);font-weight:800;color:var(--blue-dk)}
+.vt-cell.scratched{background:var(--blue);color:#fff;font-weight:700}
+.vt-cell.called:not(.scratched):not(.free){background:#dbeafe}
+.vt-cell.hl{outline:2px solid var(--gold-dk)}
+.vt-meta{font-size:.82rem;color:var(--gray);margin:.65rem 0}
+
 /* ═══════════════════════════════════════════════
    ORGANIZER DASHBOARD
 ═══════════════════════════════════════════════ */
@@ -849,6 +866,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);
   </div>
 </div>
 
+<!-- VIEW TICKET MODAL (organizer) -->
+<div class="win-overlay" id="view-ticket-overlay" onclick="closeViewTicket()">
+  <div class="win-modal vt-modal" onclick="event.stopPropagation()">
+    <h2 style="font-size:1.5rem">🎟️ Verify Ticket</h2>
+    <p id="vt-title" class="vt-meta"></p>
+    <div id="vt-grid" class="vt-grid"></div>
+    <p id="vt-pattern" class="vt-meta"></p>
+    <button class="btn btn-primary mt" onclick="closeViewTicket()">Close</button>
+  </div>
+</div>
+
 <!-- Announcement toast -->
 <div id="announce"></div>
 
@@ -963,7 +991,32 @@ function loadG(){
       fullHouse  : p.winners?.fullHouse   || []
     };
     G.claims      = p.claims || [];
+    migrateTicketsToCurrentGrid();
   }catch(e){}
+}
+
+function migrateTicketsToCurrentGrid(){
+  let changed = false;
+  Object.values(G.tickets || {}).forEach(t=>{
+    if(!Array.isArray(t.grid) || t.grid.length !== GRID_SIZE){
+      t.grid = makeGrid();
+      t.scratched = [FREE_IDX];
+      t.wins = [];
+      changed = true;
+      return;
+    }
+    if(!Array.isArray(t.scratched)){
+      t.scratched = [FREE_IDX];
+      changed = true;
+    }
+    if(!t.scratched.includes(FREE_IDX)){
+      t.scratched.push(FREE_IDX);
+      changed = true;
+    }
+  });
+  if(changed){
+    saveG();
+  }
 }
 function saveS(){ try{ sessionStorage.setItem(S_KEY, JSON.stringify(S)) }catch(e){} }
 function loadS(){
@@ -1686,7 +1739,7 @@ function renderClaims(){
       : '<span class="badge badge-gray">Rejected</span>';
     const actions = c.status==='pending'
       ? `<div class="claim-actions">
-          <button class="btn btn-sm" style="background:var(--blue);color:white" onclick="focusTicket('${esc(c.ticketId,true)}')">View Ticket</button>
+          <button class="btn btn-sm" style="background:var(--blue);color:white" onclick="viewClaimTicket('${esc(c.id,true)}')">View Ticket</button>
           <button class="btn btn-sm btn-gold" onclick="verifyClaim('${esc(c.id,true)}')">Verify</button>
           <button class="btn btn-sm btn-red" onclick="rejectClaim('${esc(c.id,true)}')">Reject</button>
         </div>`
@@ -1712,7 +1765,7 @@ function activatePane(paneId){
   if(paneId==='tab-words')   document.querySelector('.tab[onclick*="tab-words"]')?.classList.add('active');
 }
 
-function focusTicket(ticketId){
+function focusTicketRow(ticketId){
   activatePane('tab-tickets');
   setTimeout(()=>{
     const row = document.getElementById(`ticket-row-${ticketId}`);
@@ -1721,6 +1774,47 @@ function focusTicket(ticketId){
     row.scrollIntoView({behavior:'smooth', block:'center'});
     setTimeout(()=>row.classList.remove('ticket-focus'), 2500);
   }, 60);
+}
+
+function viewClaimTicket(claimId){
+  loadG();
+  const claim = (G.claims || []).find(c=>c.id===claimId);
+  if(!claim) return;
+  const ticket = G.tickets[claim.ticketId];
+  if(!ticket){
+    alert('Ticket not found for this claim.');
+    return;
+  }
+
+  focusTicketRow(claim.ticketId);
+
+  const player = G.players[claim.playerId];
+  const title = document.getElementById('vt-title');
+  const pat = PATTERNS[claim.pattern];
+  const patternCells = new Set(pat?.cells || []);
+  title.textContent = `${player?.name || claim.playerName} · Ticket ${claim.ticketId}`;
+  document.getElementById('vt-pattern').textContent = `Claimed: ${pat?.icon || '🚨'} ${pat?.name || claim.pattern}`;
+
+  const grid = document.getElementById('vt-grid');
+  grid.innerHTML = '';
+  ticket.grid.forEach((word, idx)=>{
+    const cell = document.createElement('div');
+    const classes = ['vt-cell'];
+    const scratched = ticket.scratched?.includes(idx);
+    if(word==='FREE') classes.push('free');
+    else if(scratched) classes.push('scratched');
+    else if(G.calledWords.includes(word)) classes.push('called');
+    if(patternCells.has(idx)) classes.push('hl');
+    cell.className = classes.join(' ');
+    cell.textContent = word==='FREE' ? '★ FREE' : word;
+    grid.appendChild(cell);
+  });
+
+  document.getElementById('view-ticket-overlay').classList.add('show');
+}
+
+function closeViewTicket(){
+  document.getElementById('view-ticket-overlay').classList.remove('show');
 }
 
 function verifyClaim(claimId){
