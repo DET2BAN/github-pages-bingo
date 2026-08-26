@@ -30,7 +30,10 @@ jobs:
         env:
           ORG_PWD: ${{ secrets.ORG_PWD }}
         run: |
-          test -n "$ORG_PWD"
+          if [ -z "$ORG_PWD" ]; then
+            echo "::error title=Missing ORG_PWD secret::Set ORG_PWD in Settings > Environments > github-pages > Secrets, then re-run this workflow."
+            exit 1
+          fi
           node -e "const fs = require('fs'); const html = fs.readFileSync('index.html', 'utf8').replace(/__ORG_PWD__/g, process.env.ORG_PWD); fs.mkdirSync('dist', { recursive: true }); fs.writeFileSync('dist/index.html', html);"
 
       - name: Configure Pages
