@@ -869,7 +869,8 @@ const PATTERNS = {
 /* ──────────────────────────────────────
    CONSTANTS
 ────────────────────────────────────── */
-const ORG_PASS  = "sherpa2024";
+const ORG_PASS_PLACEHOLDER = "__ORG_PWD__";
+const ORG_PASS  = ORG_PASS_PLACEHOLDER;
 const G_KEY     = "bshBingo_v2_state";
 const S_KEY     = "bshBingo_v2_session";
 const CH_NAME   = "bshBingoChannel";
@@ -1037,6 +1038,10 @@ function doPlayerLogin(){
 ────────────────────────────────────── */
 function doOrgLogin(){
   const pass = document.getElementById('inp-pass').value;
+  if(ORG_PASS === ORG_PASS_PLACEHOLDER){
+    alert('Organizer password is not configured for this deployment. Set the GitHub environment secret ORG_PWD and redeploy.');
+    return;
+  }
   if(pass !== ORG_PASS){ alert('❌ Wrong password!'); document.getElementById('inp-pass').value=''; return; }
   S.role = 'organizer';
   saveS();
