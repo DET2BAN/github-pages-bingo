@@ -541,6 +541,55 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#b0b8c8;border-radius:3px}
+
+/* ═══════════════════════════════════════════════
+   GAME RULES SCREEN
+═══════════════════════════════════════════════ */
+#s-rules{background:var(--bg)}
+.rules-wrap{padding:1.5rem;max-width:900px;margin:0 auto;width:100%}
+.rules-card{background:white;border-radius:var(--r);
+           box-shadow:0 2px 12px rgba(0,51,102,.1);
+           margin-bottom:1.25rem;overflow:hidden}
+.rules-card-head{background:var(--blue);color:white;
+                padding:.75rem 1.2rem;display:flex;
+                align-items:center;gap:.5rem}
+.rules-card-head h3{font-size:.93rem;margin:0}
+.rules-card-body{padding:1.2rem}
+.rules-section{margin-bottom:1rem}
+.rules-section:last-child{margin-bottom:0}
+.rules-section h4{color:var(--blue);font-size:.95rem;
+                 font-weight:700;margin-bottom:.5rem}
+.rules-section p{font-size:.85rem;line-height:1.6;
+                color:#333;margin-bottom:.5rem}
+.rules-list{margin-left:1.2rem}
+.rules-list li{font-size:.85rem;line-height:1.5;
+              color:#333;margin-bottom:.4rem}
+.rules-highlight{background:var(--blue-lt);border-left:4px solid var(--blue);
+                 padding:.65rem .9rem;margin:.75rem 0;
+                 border-radius:0 var(--r-sm) var(--r-sm) 0}
+.rules-highlight strong{color:var(--blue)}
+.grid-demo{display:grid;grid-template-columns:repeat(5,1fr);
+          gap:2px;background:#c8d4e8;padding:2px;
+          border-radius:4px;margin:.75rem 0;max-width:200px}
+.grid-demo-cell{background:white;min-height:32px;
+               display:flex;align-items:center;justify-content:center;
+               font-size:.6rem;text-align:center;padding:2px;
+               font-weight:500}
+.grid-demo-cell.free{background:var(--gold);color:var(--blue-dk);
+                    font-weight:800}
+.pattern-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+             gap:1rem;margin:.75rem 0}
+.pattern-box{background:var(--blue-lt);border-radius:var(--r-sm);
+            padding:.75rem;text-align:center}
+.pattern-box .picon{font-size:2rem;display:block;margin-bottom:.4rem}
+.pattern-box .pname{font-weight:700;color:var(--blue);
+                   font-size:.85rem;margin-bottom:.3rem;display:block}
+.pattern-box .pdesc{font-size:.75rem;color:var(--gray)}
+.tip-box{background:#fffbf0;border-left:4px solid var(--gold);
+        border-radius:0 var(--r-sm) var(--r-sm) 0;
+        padding:.65rem .9rem;margin:.5rem 0;
+        font-size:.8rem;line-height:1.5;color:#666}
+.tip-box strong{color:var(--gold-dk)}
 </style>
 </head>
 <body>
@@ -588,11 +637,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);
           <input type="text" id="inp-name" placeholder="e.g. Alex Müller" maxlength="40"
                  onkeydown="if(event.key==='Enter')doPlayerLogin()">
         </div>
-        <div class="field">
-          <label>Email / Employee ID</label>
-          <input type="text" id="inp-email" placeholder="alex@bsh-group.com" maxlength="60"
-                 onkeydown="if(event.key==='Enter')doPlayerLogin()">
-        </div>
         <button class="btn btn-primary mt" onclick="doPlayerLogin()">🎟️ Get My Tickets</button>
       </div>
 
@@ -606,14 +650,271 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);
       </div>
 
       <button class="btn btn-ghost mt-sm" onclick="show('s-role')">← Back</button>
+      <button class="btn btn-ghost mt-sm" style="background:transparent;border:2px solid #dde4f0" onclick="show('s-rules')">📖 View Game Rules</button>
     </div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════
-     TICKET SELECTION
+     GAME RULES
 ══════════════════════════════════════ -->
-<div id="s-tickets" class="screen">
+<div id="s-rules" class="screen">
+  <div class="ph">
+    <h1>📖 Game Rules & How to Play</h1>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.2)" onclick="show('s-auth')">← Back</button>
+  </div>
+  <div class="rules-wrap">
+
+    <!-- WHAT IS BINGO? -->
+    <div class="rules-card">
+      <div class="rules-card-head"><h3>🎯 What is BSH Buzzword Bingo?</h3></div>
+      <div class="rules-card-body">
+        <div class="rules-section">
+          <p>
+            <strong>Buzzword Bingo</strong> is a fun game where players mark off buzzwords as they are called out by the organizer. 
+            The first to complete a winning pattern wins the game! This edition uses buzzwords from <strong>Sherpa Platform</strong>, 
+            <strong>OCO (Order Control)</strong>, and <strong>arc42 Architecture</strong> documentation.
+          </p>
+        </div>
+        <div class="rules-highlight">
+          <strong>🎮 Perfect for:</strong> Team events, conference bingo, training sessions, or just for fun while listening to a presentation!
+        </div>
+      </div>
+    </div>
+
+    <!-- THE CARD -->
+    <div class="rules-card">
+      <div class="rules-card-head"><h3>🎟️ Your Bingo Card</h3></div>
+      <div class="rules-card-body">
+        <div class="rules-section">
+          <h4>Card Layout</h4>
+          <p>Each bingo card has <strong>3 rows × 5 columns = 15 cells</strong> with random buzzwords from a pool of 75 words.</p>
+          <div class="grid-demo">
+            <div class="grid-demo-cell">API</div>
+            <div class="grid-demo-cell">Sync</div>
+            <div class="grid-demo-cell">Cache</div>
+            <div class="grid-demo-cell">Deploy</div>
+            <div class="grid-demo-cell">Schema</div>
+            
+            <div class="grid-demo-cell">Config</div>
+            <div class="grid-demo-cell">Data</div>
+            <div class="grid-demo-cell free">FREE</div>
+            <div class="grid-demo-cell">Service</div>
+            <div class="grid-demo-cell">Flow</div>
+            
+            <div class="grid-demo-cell">Pipeline</div>
+            <div class="grid-demo-cell">Event</div>
+            <div class="grid-demo-cell">Legacy</div>
+            <div class="grid-demo-cell">Bridge</div>
+            <div class="grid-demo-cell">Context</div>
+          </div>
+        </div>
+        <div class="rules-section">
+          <h4>The FREE Space</h4>
+          <p>The center cell is always <strong>FREE</strong> — it counts as marked automatically. This makes the second row (middle row) easiest to complete!</p>
+          <div class="rules-highlight">
+            <strong>💡 Tip:</strong> Focus on the middle row first — you only need 4 more marks since the FREE space is already there!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW TO PLAY -->
+    <div class="rules-card">
+      <div class="rules-card-head"><h3>▶️ How to Play</h3></div>
+      <div class="rules-card-body">
+        <div class="rules-section">
+          <h4>Step 1: Get Your Tickets</h4>
+          <ol class="rules-list">
+            <li>Click <strong>Player</strong> on the start screen</li>
+            <li>Enter your <strong>name</strong> and <strong>email/employee ID</strong></li>
+            <li>Choose how many tickets you want (1, 2, or 3)</li>
+            <li>Confirm and enter the game</li>
+          </ol>
+        </div>
+        <div class="rules-section">
+          <h4>Step 2: Listen & Mark</h4>
+          <ol class="rules-list">
+            <li>The organizer calls out buzzwords one by one</li>
+            <li>When you hear a buzzword on your card, <strong>click that cell to scratch it</strong></li>
+            <li>Your card will show blue highlights when a word is called but not yet scratched by you</li>
+            <li>The FREE space is already scratched for you</li>
+          </ol>
+          <div class="tip-box">
+            <strong>🎯 Pro Tip:</strong> Watch for the word announcement at the top — it shows the most recently called buzzword!
+          </div>
+        </div>
+        <div class="rules-section">
+          <h4>Step 3: Complete a Pattern</h4>
+          <p>When you mark cells to complete one of the five winning patterns (see below), a confirmation popup appears.</p>
+        </div>
+        <div class="rules-section">
+          <h4>Step 4: Raise Win Alarm</h4>
+          <ol class="rules-list">
+            <li>Click the <strong>🚨 Raise Win Alarm</strong> button on your winning card</li>
+            <li>Select which pattern you completed from the list</li>
+            <li>The organizer will see your claim and verify it</li>
+            <li>Once verified, you're recorded as a winner!</li>
+          </ol>
+          <div class="rules-highlight">
+            <strong>⚠️ Important:</strong> Only one claim per pattern per ticket. If you claim incorrectly, the organizer will reject it and you can try again.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WINNING PATTERNS -->
+    <div class="rules-card">
+      <div class="rules-card-head"><h3>🏆 Five Winning Patterns</h3></div>
+      <div class="rules-card-body">
+        <div class="rules-section">
+          <p>Complete <strong>any one</strong> of these patterns to win! Each pattern gives you a different medal rank:</p>
+        </div>
+        <div class="pattern-grid">
+          <div class="pattern-box">
+            <span class="picon">🥇</span>
+            <span class="pname">Row 1 (Top)</span>
+            <span class="pdesc">Mark all 5 cells in the top row</span>
+          </div>
+          <div class="pattern-box">
+            <span class="picon">🥈</span>
+            <span class="pname">Row 2 (Middle)</span>
+            <span class="pdesc">Mark all 5 cells in the middle row (includes FREE space)</span>
+          </div>
+          <div class="pattern-box">
+            <span class="picon">🥉</span>
+            <span class="pname">Row 3 (Bottom)</span>
+            <span class="pdesc">Mark all 5 cells in the bottom row</span>
+          </div>
+          <div class="pattern-box">
+            <span class="picon">🎯</span>
+            <span class="pname">Four Corners</span>
+            <span class="pdesc">Mark all 4 corner squares (top-left, top-right, bottom-left, bottom-right)</span>
+          </div>
+          <div class="pattern-box">
+            <span class="picon">🏠</span>
+            <span class="pname">Full House</span>
+            <span class="pdesc">Mark every single square on the card — the ultimate victory!</span>
+          </div>
+        </div>
+        <div class="rules-highlight">
+          <strong>✨ Strategy:</strong> The middle row is easiest (only 4 marks needed)! But many people will go for it. Four Corners and Full House are rarer and more impressive!
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD COLORS & FEEDBACK -->
+    <div class="rules-card">
+      <div class="rules-card-head"><h3>🎨 Understanding Card Colors</h3></div>
+      <div class="rules-card-body">
+        <div class="rules-section">
+          <ul class="rules-list">
+            <li><strong style="color:#0066cc">🔵 Blue highlight</strong> = The organizer just called this word, but you haven't scratched it yet</li>
+            <li><strong style="color:var(--blue-dk)">✓ Dark with checkmark</strong> = You've scratched this cell</li>
+            <li><strong style="color:var(--gold-dk)">⭐ Gold</strong> = This cell is part of your winning pattern</li>
+            <li><strong style="color:white;background:var(--gold);padding:0 4px">★ FREE</strong> = The free space in the center (always counts)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- RULES & ETIQUETTE -->
+    <div class="rules-card">
+      <div class="rules-card-head"><h3>📋 Rules & Fair Play</h3></div>
+      <div class="rules-card-body">
+        <div class="rules-section">
+          <h4>General Rules</h4>
+          <ul class="rules-list">
+            <li>You can play 1–3 tickets at once to increase your chances</li>
+            <li>All tickets are based on random draws from the same word pool</li>
+            <li>Only one win per pattern per ticket (you can't claim the same pattern twice on the same card)</li>
+            <li>The organizer has the final say on claim verification</li>
+            <li>If the organizer resets the game, all sessions end and must rejoin</li>
+          </ul>
+        </div>
+        <div class="rules-section">
+          <h4>Playing Fairly</h4>
+          <ul class="rules-list">
+            <li>Only scratch cells for words the organizer <strong>actually calls</strong></li>
+            <li>Don't spam claim buttons — raise one claim per pattern per card</li>
+            <li>If a claim is rejected, the organizer will provide feedback</li>
+            <li>Have fun and enjoy the spirit of the game!</li>
+          </ul>
+        </div>
+        <div class="rules-highlight">
+          <strong>🤝 Spirit of the Game:</strong> This is meant to be fun! Play honestly, help others enjoy it, and celebrate all winners!
+        </div>
+      </div>
+    </div>
+
+    <!-- TIPS & TRICKS -->
+    <div class="rules-card">
+      <div class="rules-card-head"><h3>⚡ Tips & Tricks</h3></div>
+      <div class="rules-card-body">
+        <div class="tip-box">
+          <strong>📢 Listen Carefully</strong> — The organizer will announce each word clearly. Watch the ticker at the top for the most recent call.
+        </div>
+        <div class="tip-box">
+          <strong>🎯 Go for Middle Row First</strong> — You need only 4 scratches (besides the FREE space) to win. This is the easiest pattern!
+        </div>
+        <div class="tip-box">
+          <strong>🏃 Be Fast</strong> — Scratch cells quickly! Multiple people might complete the same pattern. First to claim wins the ranking for that pattern.
+        </div>
+        <div class="tip-box">
+          <strong>💡 Use Multiple Tickets</strong> — 2 or 3 tickets double or triple your chances of hitting the same word combinations.
+        </div>
+        <div class="tip-box">
+          <strong>🚨 Know When to Claim</strong> — Have your card ready! When you spot a completed pattern, raise the alarm immediately. Don't wait!
+        </div>
+        <div class="tip-box">
+          <strong>🔄 Cross-Tab Play</strong> — Open multiple browser tabs to simulate different players. All instances sync in real-time via localStorage!
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="rules-card">
+      <div class="rules-card-head"><h3>❓ FAQ</h3></div>
+      <div class="rules-card-body">
+        <div class="rules-section">
+          <h4>Q: Can I change my mind after scratching?</h4>
+          <p>A: Once scratched, a cell stays scratched. Be careful when clicking!</p>
+        </div>
+        <div class="rules-section">
+          <h4>Q: What if I scratch the wrong cell by accident?</h4>
+          <p>A: Unfortunately, the game doesn't have an undo. Be mindful when clicking. The organizer can help if there's a clear mistake.</p>
+        </div>
+        <div class="rules-section">
+          <h4>Q: Can the organizer declare me a winner without me raising an alarm?</h4>
+          <p>A: No — you must raise the alarm yourself. The organizer will verify your claim and record the win.</p>
+        </div>
+        <div class="rules-section">
+          <h4>Q: What happens if two people complete the same pattern at the same time?</h4>
+          <p>A: First to raise the alarm and get verified by the organizer gets the win. The winners board shows all who completed each pattern.</p>
+        </div>
+        <div class="rules-section">
+          <h4>Q: Can I play multiple games in a row?</h4>
+          <p>A: Yes! The organizer can reset the game at any time, and you can rejoin to get new tickets.</p>
+        </div>
+        <div class="rules-section">
+          <h4>Q: Do my tickets carry over if I close the browser?</h4>
+          <p>A: Your data is saved locally. Returning with the same email will load your existing tickets.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="text-align:center;padding:2rem 1.2rem;font-size:.8rem;color:var(--gray)">
+      <p>✨ Ready to play? Go back and join the game! Good luck! 🍀</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     AUTH
+══════════════════════════════════════ -->
+<div id="s-auth" class="screen">
   <div class="ph">
     <h1>🎯 BSH Buzzword Bingo</h1>
     <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
@@ -812,12 +1113,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);
             <table class="tbl">
               <thead>
                 <tr>
-                  <th>#</th><th>Name</th><th>Email / ID</th>
+                  <th>#</th><th>Name</th>
                   <th>Tickets</th><th>Scratched</th><th>Wins</th><th>Joined</th>
                 </tr>
               </thead>
               <tbody id="players-tbody">
-                <tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--gray);font-style:italic">No players yet…</td></tr>
+                <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--gray);font-style:italic">No players yet…</td></tr>
               </tbody>
             </table>
           </div>
@@ -1206,7 +1507,6 @@ function goToMainPage(){
   saveS();
   document.getElementById('inp-pass').value = '';
   document.getElementById('inp-name').value = '';
-  document.getElementById('inp-email').value = '';
   show('s-role');
 }
 
@@ -1231,29 +1531,17 @@ function gotoAuth(role){
 ────────────────────────────────────── */
 function doPlayerLogin(){
   const name  = document.getElementById('inp-name').value.trim();
-  const email = document.getElementById('inp-email').value.trim();
   if(!name)  { alert('Please enter your name!'); return; }
-  if(!email) { alert('Please enter your email or employee ID!'); return; }
 
   loadG();
 
-  // Returning player? Look up by email
-  const existing = Object.values(G.players).find(p=>p.email===email);
-  if(existing){
-    S.playerId = existing.id;
-    saveS();
-    if(existing.ticketIds && existing.ticketIds.length>0) enterGame();
-    else showTicketSelect();
-    return;
-  }
-
-  // New player
+  // Create new player
   const id = uid('P');
-  G.players[id] = {id, name, email, ticketIds:[], joinedAt:Date.now()};
+  G.players[id] = {id, name, ticketIds:[], joinedAt:Date.now()};
   S.playerId = id;
   saveS();
   saveG();
-  send('PLAYER_JOINED', {name, email, playerId:id});
+  send('PLAYER_JOINED', {name, playerId:id});
   showTicketSelect();
 }
 
@@ -1925,7 +2213,7 @@ function renderPlayersTable(players, tickets, pendingClaims){
   const alertPlayers = new Set((pendingClaims||[]).map(c=>c.playerId));
   const tbody = document.getElementById('players-tbody');
   if(!players.length){
-    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--gray);font-style:italic">No players yet…</td></tr>';
+    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--gray);font-style:italic">No players yet…</td></tr>';
     return;
   }
   tbody.innerHTML = players.map((p,i)=>{
@@ -1939,7 +2227,6 @@ function renderPlayersTable(players, tickets, pendingClaims){
     return `<tr class="${isAlert?'row-alert':''}">
       <td>${i+1}</td>
       <td><strong>${esc(p.name)}</strong></td>
-      <td style="font-size:.73rem;color:var(--gray)">${esc(p.email)}</td>
       <td>
         <span class="badge badge-blue">${p.ticketIds.length}</span>
         <span style="font-size:.68rem;color:var(--gray);margin-left:.3rem">
